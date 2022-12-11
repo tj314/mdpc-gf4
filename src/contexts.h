@@ -7,12 +7,30 @@
 #include "custom_exceptions.h"
 #include "vector_utils.h"
 
+/**
+ * @brief Class that hold the public key G and provides encoding functionality.
+ *
+ * The public key G is a matrix, but here it is represented as a vector.
+ * This vector corresponds to the second block of G (but not transposed as it is unnecessary for encoding).
+ * The first block is an identity matrix and it therefore unnecessary to store it.
+ *
+ * @tparam T Finite field to be used.
+ */
 template <typename T>
 class EncodingContext {
 public:
     EncodingContext() = default;
     EncodingContext(const std::vector<T>& second_block_G, size_t block_size) : second_block_G(second_block_G), block_size(block_size) {}
 
+    /**
+     * @brief Encode a message.
+     *
+     * The message must be of length block_size.
+     * The encoded message is calculated as mG.
+     *
+     * @param message A vector of length block_size.
+     * @return Encoded message stored in a vector of length 2*block_size.
+     */
     auto encode(const std::vector<T>& message) -> std::vector<T> {
         if (message.size() != block_size) {
             throw IncorrectInputVectorLength{};
@@ -37,6 +55,14 @@ private:
     size_t block_size;
 };
 
+/**
+ * @brief Class that holds the private key H and provides decoding functionality.
+ *
+ * The private key H is a matrix, but here it is stored as two vectors h0 and h1
+ * corresponding to the first rows of the blocks of H.
+ *
+ * @tparam T Finite field to be used.
+ */
 template <typename T>
 class DecodingContext {
 public:
@@ -44,6 +70,14 @@ public:
 
     DecodingContext(const std::vector<T> &h0, const std::vector<T> &h1, size_t block_size, size_t block_weight) : h0(h0), h1(h1), block_size(block_size), block_weight(block_weight) {}
 
+    /**
+     * @brief Calculate the syndrome of a given vector.
+     *
+     * The vector is expected to be of length 2*block_size.
+     *
+     * @param vec Avector of length 2*block_size.
+     * @return Syndrome stored in a vector of length block_size.
+     */
     auto calculate_syndrome(const std::vector<T>& vec) -> std::vector<T> {
         std::vector<T> syndrome;
         for (unsigned i = block_size; i > 0; --i) {
@@ -57,6 +91,16 @@ public:
         return syndrome;
     }
 
+    /**
+     * @brief Decode the given vector.
+     *
+     * Decoding tries to find the used error vector. Message to decode must be of length 2*block_size.
+     * There is a nonzero probability that the decoding will fail.
+     *
+     * @param message A vector of length 2*block_size.
+     * @param num_iterations Number of iterations of decoding.
+     * @return The error vector of length 2*block_size on success, nothing on failure.
+     */
     auto decode(const std::vector<T>& message, size_t num_iterations) -> std::optional<std::vector<T>> {
         if (message.size() != 2*block_size) {
             throw IncorrectInputVectorLength{};
@@ -115,6 +159,14 @@ private:
     size_t block_weight;
 };
 
+/**
+ * @brief Generate public (matrix G) and private (matrix H) keys and the classes that store them.
+ *
+ * @tparam T Finite field to be used.
+ * @param block_size The size of the circulant block of the matrices.
+ * @param block_weight The hamming weight of the row of the block of the matrix H.
+ * @return Instantiated classes EncodingContext and DecodingContext.
+ */
 template<typename T>
 auto generate_contexts(size_t block_size, size_t block_weight) -> DistinctTuple<EncodingContext<T>, DecodingContext<T>> {
     std::vector<T> h0 = T::random_weighted_vector(block_size, block_weight);
