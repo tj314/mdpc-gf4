@@ -18,8 +18,6 @@ template<typename T>
 class Polynomial {
 public:
 
-    Polynomial(const Polynomial<T>& other) = default;
-
     /**
      * @brief Construct a polynomial with pre-allocated space.
      *
@@ -34,6 +32,14 @@ public:
         }
         degree = 0;
     }
+
+    /**
+     * @brief A copy constructor.
+     *
+     * @param other A polynomial to copy.
+     */
+    Polynomial(const Polynomial<T>& other) = default;
+    auto operator=(const Polynomial<T>& other) -> Polynomial<T>& = default;
 
     /**
      * @brief Construct a polynomial from a vector of coefficients and set its degree.

@@ -79,6 +79,8 @@ public:
      */
     GF4(const GF4& other) = default;
 
+    auto operator=(const GF4& other) -> GF4& = default;
+
     /**
      * @brief Test whether the element is zero.
      *
@@ -186,7 +188,8 @@ public:
         for (size_t i = 0; i < length; ++i) {
             size_t j = Random::integer(i, length);
             if (i != j) {
-                std::swap(out[i], out[j]);
+                std::iter_swap(out.begin() + i, out.begin() + j);
+                // std::swap(out[i], out[j]);
             }
         }
         return out;
