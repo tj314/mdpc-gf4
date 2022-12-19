@@ -1,5 +1,5 @@
 CXX_STANDARD := -std=c++17
-CXX_FLAGS := -Wall -Wextra -pedantic
+CXX_FLAGS := -Wall -Wextra -Wpedantic -Wfatal-errors
 
 all:
 	${CXX} ${CXX_STANDARD} ${CXX_FLAGS} main.cpp -o main
