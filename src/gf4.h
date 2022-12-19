@@ -6,13 +6,6 @@
 #include "custom_exceptions.h"
 #include "random.h"
 
-static const uint8_t GF4_ADDITION[4][4] = {
-        {0, 1, 2, 3},
-        {1, 0, 3, 2},
-        {2, 3, 0, 1},
-        {3, 2, 1, 0}
-};
-
 static const uint8_t GF4_MULTIPLICATION[4][4] = {
         {0, 0, 0, 0},
         {0, 1, 2, 3},
@@ -120,24 +113,24 @@ public:
     }
 
     auto operator+(const GF4& other) const -> GF4 {
-        auto val = GF4_ADDITION[value][other.value];
+        size_t val = value ^ other.value;
         return GF4{val};
     }
 
     auto operator-(const GF4& other) const -> GF4 {
         // in GF4, addition is the same as subtraction
-        auto val = GF4_ADDITION[value][other.value];
+        size_t val = value ^ other.value;
         return GF4{val};
     }
 
     auto operator+=(const GF4& other) -> GF4& {
-        value = GF4_ADDITION[value][other.value];
+        value ^= other.value;
         return *this;
     }
 
     auto operator-=(const GF4& other) -> GF4& {
         // in GF4, addition is the same as subtraction
-        value = GF4_ADDITION[value][other.value];
+        value ^= other.value;
         return *this;
     }
 
