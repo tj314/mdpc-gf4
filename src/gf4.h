@@ -44,9 +44,7 @@ public:
     /**
      * @brief The default constructor for GF4, creates a zero element.
      */
-    GF4() {
-        value = 0;
-    }
+    GF4() : value(0) {}
 
     /**
      * @brief A conversion constructor from integer to a GF4 element.
@@ -61,7 +59,7 @@ public:
      * @param value integer value to convert, will be downcast to uint8_t
      */
     explicit GF4(size_t value) {
-        if (value > 3) {
+        if (value > GF4_MAX_VALUE) {
             throw IncorrectValueRange{};
         }
         this->value = value;
@@ -174,7 +172,7 @@ public:
     static auto random_weighted_vector(size_t length, size_t weight) -> std::vector<GF4> {
         std::vector<GF4> out;
         for (size_t i = 0; i < weight; ++i) {
-            GF4 val{Random::integer<uint8_t>(1, 3)};
+            GF4 val{Random::integer<uint8_t>(1, GF4_MAX_VALUE)};
             out.push_back(val);
         }
         for (size_t i = weight; i < length; ++i) {
@@ -201,7 +199,7 @@ public:
     static auto random_vector(size_t length) -> std::vector<GF4> {
         std::vector<GF4> out;
         for (size_t i = 0; i < length; ++i) {
-            GF4 val{Random::integer<uint8_t>(0, 3)};
+            GF4 val{Random::integer<uint8_t>(0, GF4_MAX_VALUE)};
             out.push_back(val);
         }
         return out;
