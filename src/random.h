@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <random>
 #include <vector>
+#include <cstdlib>
 
 /**
  * @brief Random class is a singleton used to generate random integers, vectors and polynomials.
@@ -65,13 +66,12 @@ public:
     template<typename T>
     static auto random_weighted_vector_over_GF2N(size_t length, size_t weight) -> std::vector<T> {
         std::vector<T> out;
+        out.resize(length);
         for (size_t i = 0; i < weight; ++i) {
-            T val{Random::integer<uint8_t>(1, T::get_max_value())};
-            out.push_back(val);
+            T val{Random::integer<size_t>(1, T::get_max_value())};
+            out[i] = val;
         }
-        for (size_t i = weight; i < length; ++i) {
-            out.emplace_back();
-        }
+
         for (size_t i = 0; i < length; ++i) {
             size_t j = Random::integer(i, length-1);
             if (i != j) {
@@ -93,7 +93,7 @@ public:
     static auto random_vector_over_GF2N(size_t length) -> std::vector<T> {
         std::vector<T> out;
         for (size_t i = 0; i < length; ++i) {
-            T val{Random::integer<uint8_t>(0, T::get_max_value())};
+            T val{Random::integer<size_t>(0, T::get_max_value())};
             out.push_back(val);
         }
         return out;
