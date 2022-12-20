@@ -397,7 +397,7 @@ public:
             result *= t;
             return result;
         }
-        */
+*/
 
         if (is_zero()) {
             return {};
@@ -412,10 +412,7 @@ public:
             Polynomial<T> s{modulus.degree};
             Polynomial<T> t{modulus.degree};
             t.coefficients[0] = T{1};
-#ifndef NOPRINT
-            std::cout << a.to_string() << " | " << b.to_string() << " | " << q.to_string() << " | " << s.to_string() << " | " << t.to_string() << std::endl;
-#endif
-            while (!q.is_zero()) {
+            while (true) {
                 a = b;
                 b = res.second;
                 if (b.is_zero()) {
@@ -427,14 +424,10 @@ public:
                 q = res.first;
                 s = news;
                 t = newt;
-#ifndef NOPRINT
-                std::cout << a.to_string() << " | " << b.to_string() << " | " << q.to_string() << " | " << s.to_string() << " | " << t.to_string() << std::endl;
-#endif
-                if (b.degree == 0 && b.coefficients[0].is_one()) {
-                    return t;
+                if (b.degree == 0) {
+                    return t / b;
                 }
             }
-            return {};
         }
     }
 
