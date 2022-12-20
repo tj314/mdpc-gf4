@@ -176,8 +176,9 @@ auto generate_contexts(size_t block_size, size_t block_weight) -> DistinctTuple<
     modulus.set_coefficient(0, T{1});
     modulus.set_coefficient(block_size, T{1});
 
-    std::vector<T> h1 = T::random_weighted_vector(block_size, block_weight);
+    std::vector<T> h1;
     while (true) {
+        h1 = T::random_weighted_vector(block_size, block_weight);
         while (!sum(h1).is_zero()) {
             h1 = T::random_weighted_vector(block_size, block_weight);
         }
@@ -193,6 +194,7 @@ auto generate_contexts(size_t block_size, size_t block_weight) -> DistinctTuple<
             DecodingContext<T> dc{h0, h1, block_size, block_weight};
             return DistinctTuple{ec, dc};
         }
+        // getchar();
     }
 
 }
