@@ -27,9 +27,7 @@ public:
      * @param expected_degree The expected degree of created polynomial, i.e. the amount of pre-allocated space.
      */
     explicit Polynomial(size_t expected_degree=0) {
-        if (expected_degree > 0){
-            coefficients.resize(expected_degree + 1);
-        }
+        coefficients.resize(expected_degree + 1);
         degree = 0;
     }
 
@@ -414,7 +412,7 @@ public:
             Polynomial<T> s{modulus.degree};
             Polynomial<T> t{modulus.degree};
             t.coefficients[0] = T{1};
-            // std::cout << a.to_string() << " | " << b.to_string() << " | " << q.to_string() << " | " << s.to_string() << " | " << t.to_string() << std::endl;
+            //std::cout << a.to_string() << " | " << b.to_string() << " | " << q.to_string() << " | " << s.to_string() << " | " << t.to_string() << std::endl;
             while (!q.is_zero()) {
                 a = b;
                 b = res.second;
