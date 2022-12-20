@@ -371,34 +371,6 @@ public:
      * @return Multiplicative inverse of the polynomial if it exists, nothing otherwise.
      */
     auto invert(const Polynomial<T>& modulus) const -> std::optional<Polynomial<T>> {
-        /*
-        Polynomial<T> t{modulus.degree};
-        Polynomial<T> r{modulus};
-        Polynomial<T> newt{modulus.degree};
-        newt.coefficients[0] = T{1};
-        Polynomial<T> newr{*this};
-
-        while (!newr.is_zero()) {
-            auto res = r.div_rem(newr);
-            Polynomial<T> tmp{r};
-            r = newr;
-            newr = tmp - res.second;
-            tmp = t;
-            t = newt;
-            newt = tmp - (res.first * newt);
-        }
-
-        if (r.degree > 0) {
-            return {};
-        } else {
-            Polynomial<T> result{modulus.degree};
-            result.coefficients[0] = T{1};
-            result /= r;
-            result *= t;
-            return result;
-        }
-*/
-
         if (is_zero()) {
             return {};
         } else {
