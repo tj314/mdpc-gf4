@@ -46,8 +46,8 @@ public:
      */
     explicit Polynomial(const std::vector<T>& coeffs) {
         degree = 0;
+        coefficients = coeffs;
         for (size_t i = 0; i < coeffs.size(); ++i) {
-            coefficients.push_back(coeffs[i]);
             if (!coeffs[i].is_zero()) {
                 degree = i;
             }
@@ -79,10 +79,11 @@ public:
      * @param value The value to set the coefficient to.
      */
     auto set_coefficient(size_t deg, T value) -> void {
-        if (deg >= coefficients.size()) {
+        if (deg > degree && !value.is_zero()) {
             coefficients.resize(deg + 1);
-        }
-        if (value.is_zero() && deg == degree) {
+            coefficients[deg] = value;
+            degree = deg;
+        } else if (deg == degree && value.is_zero()) {
             coefficients[deg] = value;
             for (size_t i = degree; i > 0; --i) {
                 if (!coefficients[i].is_zero()) {
@@ -91,9 +92,6 @@ public:
                 }
             }
             degree = 0;
-        } else if (deg > degree) {
-            coefficients[deg] = value;
-            degree = deg;
         } else {
             coefficients[deg] = value;
         }
