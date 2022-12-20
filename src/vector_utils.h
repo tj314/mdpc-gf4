@@ -1,5 +1,5 @@
-#ifndef MDPC_GF4_CPP_VECTOR_UTILS_H
-#define MDPC_GF4_CPP_VECTOR_UTILS_H
+#ifndef MDPC_GF4_VECTOR_UTILS_H
+#define MDPC_GF4_VECTOR_UTILS_H
 
 template<typename T>
 auto is_vector_zero(const std::vector<T>& vec) -> bool {
@@ -32,4 +32,4 @@ auto sum(const std::vector<T>& v) -> T {
     return s;
 }
 
-#endif //MDPC_GF4_CPP_VECTOR_UTILS_H
+#endif //MDPC_GF4_VECTOR_UTILS_H

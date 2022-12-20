@@ -1,5 +1,5 @@
-#ifndef MDPC_GF4_CPP_ENCODING_CONTEXT_H
-#define MDPC_GF4_CPP_ENCODING_CONTEXT_H
+#ifndef MDPC_GF4_ENCODING_CONTEXT_H
+#define MDPC_GF4_ENCODING_CONTEXT_H
 
 #include <vector>
 #include <optional>
@@ -197,4 +197,4 @@ auto generate_contexts(size_t block_size, size_t block_weight) -> DistinctTuple<
 
 }
 
-#endif //MDPC_GF4_CPP_ENCODING_CONTEXT_H
+#endif //MDPC_GF4_ENCODING_CONTEXT_H

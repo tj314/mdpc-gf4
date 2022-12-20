@@ -1,5 +1,5 @@
-#ifndef MDPC_GF4_CPP_CUSTOM_EXCEPTIONS_H
-#define MDPC_GF4_CPP_CUSTOM_EXCEPTIONS_H
+#ifndef MDPC_GF4_CUSTOM_EXCEPTIONS_H
+#define MDPC_GF4_CUSTOM_EXCEPTIONS_H
 
 #include <exception>
 
@@ -21,4 +21,4 @@ struct IncorrectValueRange : public std::exception {
     }
 };
 
-#endif //MDPC_GF4_CPP_CUSTOM_EXCEPTIONS_H
+#endif //MDPC_GF4_CUSTOM_EXCEPTIONS_H

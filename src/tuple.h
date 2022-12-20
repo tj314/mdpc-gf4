@@ -1,5 +1,5 @@
-#ifndef MDPC_GF4_CPP_TUPLE_H
-#define MDPC_GF4_CPP_TUPLE_H
+#ifndef MDPC_GF4_TUPLE_H
+#define MDPC_GF4_TUPLE_H
 
 template<typename T, typename R>
 struct DistinctTuple {
@@ -12,4 +12,4 @@ struct DistinctTuple {
 template<typename T>
 using Tuple = DistinctTuple<T, T>;
 
-#endif //MDPC_GF4_CPP_TUPLE_H
+#endif //MDPC_GF4_TUPLE_H

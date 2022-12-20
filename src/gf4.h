@@ -1,10 +1,12 @@
-#ifndef MDPC_GF4_CPP_GF4_H
-#define MDPC_GF4_CPP_GF4_H
+#ifndef MDPC_GF4_GF4_H
+#define MDPC_GF4_GF4_H
 
 #include <string>
 #include <vector>
 #include "custom_exceptions.h"
 #include "random.h"
+
+#define GF4_MAX_VALUE 3
 
 static const uint8_t GF4_MULTIPLICATION[4][4] = {
         {0, 0, 0, 0},
@@ -222,4 +224,4 @@ private:
     uint8_t value;
 };
 
-#endif //MDPC_GF4_CPP_GF4_H
+#endif //MDPC_GF4_GF4_H

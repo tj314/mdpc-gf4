@@ -1,5 +1,5 @@
-#ifndef MDPC_GF4_CPP_POLYNOMIAL_H
-#define MDPC_GF4_CPP_POLYNOMIAL_H
+#ifndef MDPC_GF4_POLYNOMIAL_H
+#define MDPC_GF4_POLYNOMIAL_H
 
 #include <vector>
 #include <string>
@@ -441,4 +441,4 @@ private:
     size_t degree;
     inline static const T zero{0};
 };
-#endif //MDPC_GF4_CPP_POLYNOMIAL_H
+#endif //MDPC_GF4_POLYNOMIAL_H

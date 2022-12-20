@@ -1,5 +1,5 @@
-#ifndef MDPC_GF4_CPP_RANDOM_H
-#define MDPC_GF4_CPP_RANDOM_H
+#ifndef MDPC_GF4_RANDOM_H
+#define MDPC_GF4_RANDOM_H
 
 #include <algorithm>
 #include <random>
@@ -53,4 +53,4 @@ public:
     }
 };
 
-#endif //MDPC_GF4_CPP_RANDOM_H
+#endif //MDPC_GF4_RANDOM_H
