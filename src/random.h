@@ -51,6 +51,53 @@ public:
     static auto integer(T inclusive_low_bound, T inclusive_high_bound) -> T {
         return std::uniform_int_distribution<T>{inclusive_low_bound, inclusive_high_bound}(get().engine);
     }
+
+    /**
+     * @brief Generate a random vector with given hamming weight.
+     *
+     * The nonzero elements are drawn from a GF(2^n) uniformly at random. The vector is shuffled using Fisher-Yates algorithm.
+     *
+     * @tparam T A finite field of type GF(2^n).
+     * @param length The length of the vector.
+     * @param weight The hamming weight of the vector, i. e. the number of nonzero entries.
+     * @return Randomly generated vector of a given hamming weight.
+     */
+    template<typename T>
+    static auto random_weighted_vector_over_GF2N(size_t length, size_t weight) -> std::vector<T> {
+        std::vector<T> out;
+        for (size_t i = 0; i < weight; ++i) {
+            T val{Random::integer<uint8_t>(1, T::get_max_value())};
+            out.push_back(val);
+        }
+        for (size_t i = weight; i < length; ++i) {
+            out.emplace_back();
+        }
+        for (size_t i = 0; i < length; ++i) {
+            size_t j = Random::integer(i, length-1);
+            if (i != j) {
+                std::iter_swap(out.begin() + i, out.begin() + j);
+            }
+        }
+        return out;
+    }
+
+    /**
+     * @brief Generate a random vector.
+     *
+     * Values are drawn from GF(2^n) uniformly at random.
+     *
+     * @param length
+     * @return
+     */
+    template<typename T>
+    static auto random_vector_over_GF2N(size_t length) -> std::vector<T> {
+        std::vector<T> out;
+        for (size_t i = 0; i < length; ++i) {
+            T val{Random::integer<uint8_t>(0, T::get_max_value())};
+            out.push_back(val);
+        }
+        return out;
+    }
 };
 
 #endif //MDPC_GF4_RANDOM_H

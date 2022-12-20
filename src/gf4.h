@@ -106,9 +106,9 @@ public:
             case 1:
                 return "1";
             case 2:
-                return "alpha";
-            case 3:
-                return "(alpha + 1)";
+                return "a";
+            default:  // value == 3
+                return "(a + 1)";
         }
     }
 
@@ -161,48 +161,14 @@ public:
     }
 
     /**
-     * @brief Generate a random vector with given hamming weight.
+     * @brief get maximum value of element in GF(4)
      *
-     * The nonzero elements are drawn from GF(4) uniformly at random. The vector is shuffled using Fisher-Yates algorithm.
+     * In GF(4), the maximum value is 3.
      *
-     * @param length The length of the vector.
-     * @param weight The hamming weight of the vector, i. e. the number of nonzero entries.
-     * @return Randomly generated vector of a given hamming weight.
+     * @return 3
      */
-    static auto random_weighted_vector(size_t length, size_t weight) -> std::vector<GF4> {
-        std::vector<GF4> out;
-        for (size_t i = 0; i < weight; ++i) {
-            GF4 val{Random::integer<uint8_t>(1, GF4_MAX_VALUE)};
-            out.push_back(val);
-        }
-        for (size_t i = weight; i < length; ++i) {
-            out.emplace_back();
-        }
-        for (size_t i = 0; i < length; ++i) {
-            size_t j = Random::integer(i, length);
-            if (i != j) {
-                std::iter_swap(out.begin() + i, out.begin() + j);
-                // std::swap(out[i], out[j]);
-            }
-        }
-        return out;
-    }
-
-    /**
-     * @brief Generate a random vector.
-     *
-     * Values are drawn from GF(4) uniformly at random.
-     *
-     * @param length
-     * @return
-     */
-    static auto random_vector(size_t length) -> std::vector<GF4> {
-        std::vector<GF4> out;
-        for (size_t i = 0; i < length; ++i) {
-            GF4 val{Random::integer<uint8_t>(0, GF4_MAX_VALUE)};
-            out.push_back(val);
-        }
-        return out;
+    [[nodiscard]] static auto get_max_value() -> size_t {
+        return GF4_MAX_VALUE;
     }
 
     /**

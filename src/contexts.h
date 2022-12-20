@@ -169,7 +169,7 @@ private:
  */
 template<typename T>
 auto generate_contexts(size_t block_size, size_t block_weight) -> DistinctTuple<EncodingContext<T>, DecodingContext<T>> {
-    std::vector<T> h0 = T::random_weighted_vector(block_size, block_weight);
+    std::vector<T> h0 = Random::random_weighted_vector_over_GF2N<GF4>(block_size, block_weight);
     Polynomial<T> h0_poly{h0};
 
     Polynomial<T> modulus{block_size + 1};
@@ -178,9 +178,9 @@ auto generate_contexts(size_t block_size, size_t block_weight) -> DistinctTuple<
 
     std::vector<T> h1;
     while (true) {
-        h1 = T::random_weighted_vector(block_size, block_weight);
+        h1 = Random::random_weighted_vector_over_GF2N<GF4>(block_size, block_weight);
         while (!sum(h1).is_zero()) {
-            h1 = T::random_weighted_vector(block_size, block_weight);
+            h1 = Random::random_weighted_vector_over_GF2N<GF4>(block_size, block_weight);
         }
         Polynomial<T> h1_poly{h1};
         auto inverse = h1_poly.invert(modulus);
@@ -194,7 +194,6 @@ auto generate_contexts(size_t block_size, size_t block_weight) -> DistinctTuple<
             DecodingContext<T> dc{h0, h1, block_size, block_weight};
             return DistinctTuple{ec, dc};
         }
-        // getchar();
     }
 
 }
