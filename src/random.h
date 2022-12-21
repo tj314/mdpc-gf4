@@ -59,12 +59,16 @@ public:
      * The nonzero elements are drawn from a GF(2^n) uniformly at random. The vector is shuffled using Fisher-Yates algorithm.
      *
      * @tparam T A finite field of type GF(2^n).
+     * @throws ImpossibleHammingWeight if length < weight.
      * @param length The length of the vector.
      * @param weight The hamming weight of the vector, i. e. the number of nonzero entries.
      * @return Randomly generated vector of a given hamming weight.
      */
     template<typename T>
     static auto random_weighted_vector_over_GF2N(size_t length, size_t weight) -> std::vector<T> {
+        if (weight > length) {
+            throw ImpossibleHammingWeight{};
+        }
         std::vector<T> out;
         out.resize(length);
         for (size_t i = 0; i < weight; ++i) {

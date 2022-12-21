@@ -21,4 +21,10 @@ struct IncorrectValueRange : public std::exception {
     }
 };
 
+struct ImpossibleHammingWeight : public std::exception {
+    auto what() -> const char * {
+        return "Cannot construct a vector with the request weight. The weight is more than the length!";
+    }
+};
+
 #endif //MDPC_GF4_CUSTOM_EXCEPTIONS_H
