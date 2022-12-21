@@ -169,33 +169,35 @@ private:
  */
 template<typename T>
 auto generate_contexts(size_t block_size, size_t block_weight) -> DistinctTuple<EncodingContext<T>, DecodingContext<T>> {
-    std::vector<T> h0 = Random::random_weighted_vector_over_GF2N<GF4>(block_size, block_weight);
-    Polynomial<T> h0_poly{h0};
-
-    Polynomial<T> modulus{block_size + 1};
-    modulus.set_coefficient(0, T{1});
+    T minus_one = T{0} - T{1};
+    Polynomial<T> modulus{block_size};
+    modulus.set_coefficient(0, minus_one);
     modulus.set_coefficient(block_size, T{1});
-
-    std::vector<T> h1;
+    std::vector<T> h0 = Random::random_weighted_vector_over_GF2N<T>(block_size, block_weight);
     while (true) {
-        h1 = Random::random_weighted_vector_over_GF2N<GF4>(block_size, block_weight);
-        while (!sum(h1).is_zero()) {
-            h1 = Random::random_weighted_vector_over_GF2N<GF4>(block_size, block_weight);
+        std::vector<T> h1 = Random::random_weighted_vector_over_GF2N<T>(block_size, block_weight);
+        if (sum(h1).is_zero()) {
+            continue;
         }
         Polynomial<T> h1_poly{h1};
-        auto inverse = h1_poly.invert(modulus);
-        if (inverse) {
-            Polynomial<T> zero_poly{0};
-            Polynomial<T> second_block_G_poly = zero_poly - (h0_poly * inverse.value());
-            T minus_one = T{} - T{1}; // TODO: this is somewhat of a hacky way to generate -1, consider introducing a method in galois field
-            second_block_G_poly *= minus_one;
-            second_block_G_poly %= modulus;
-            EncodingContext<T> ec{second_block_G_poly.to_vector(), block_size};
+        auto maybe_inverse = h1_poly.invert(modulus);
+        if (maybe_inverse) {
+            Polynomial<T> inverse = maybe_inverse.value();
+            Polynomial<T> tmp = (h1_poly * inverse) % modulus;
+            if (!tmp.is_one()) {
+                // WTF?! this likely means the "Polynomial::invert" is broken
+                // therefore I consider it to be wise to abort
+                throw WTF{};
+            }
+            std::cout << "inverse: " << maybe_inverse.value().to_string() << "\n";
+            Polynomial<T> h0_poly{h0};
+            Polynomial<T> second_block_G_poly = Polynomial<T>{0} - (h0_poly * inverse);
+            std::vector<T> second_block_G = second_block_G_poly.to_vector();
+            EncodingContext<T> ec{second_block_G, block_size};
             DecodingContext<T> dc{h0, h1, block_size, block_weight};
-            return DistinctTuple{ec, dc};
+            return DistinctTuple(ec, dc);
         }
     }
-
 }
 
 #endif //MDPC_GF4_ENCODING_CONTEXT_H

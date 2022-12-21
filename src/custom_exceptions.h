@@ -27,4 +27,10 @@ struct ImpossibleHammingWeight : public std::exception {
     }
 };
 
+struct WTF : public std::exception {
+    auto what() -> const char * {
+        return "This shouldn't have happened. This is a bug! read the comments!";
+    }
+};
+
 #endif //MDPC_GF4_CUSTOM_EXCEPTIONS_H
