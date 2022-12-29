@@ -189,7 +189,6 @@ auto generate_contexts(size_t block_size, size_t block_weight) -> DistinctTuple<
                 // therefore I consider it to be wise to abort
                 throw WTF{};
             }
-            std::cout << "inverse: " << maybe_inverse.value().to_string() << "\n";
             Polynomial<T> h0_poly{h0};
             Polynomial<T> second_block_G_poly = Polynomial<T>{0} - (h0_poly * inverse);
             std::vector<T> second_block_G = second_block_G_poly.to_vector();
