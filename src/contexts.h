@@ -19,7 +19,7 @@
 template <typename T>
 class EncodingContext {
 public:
-    EncodingContext() = default;
+    EncodingContext() : block_size(0) {}
     EncodingContext(const std::vector<T>& second_block_G, size_t block_size) : second_block_G(second_block_G), block_size(block_size) {}
 
     /**
@@ -66,7 +66,7 @@ private:
 template <typename T>
 class DecodingContext {
 public:
-    DecodingContext() = default;
+    DecodingContext() : block_size(0), block_weight(0) {}
 
     DecodingContext(const std::vector<T> &h0, const std::vector<T> &h1, size_t block_size, size_t block_weight) : h0(h0), h1(h1), block_size(block_size), block_weight(block_weight) {}
 
