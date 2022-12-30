@@ -267,17 +267,19 @@ public:
     }
 
     auto operator*=(const PolynomialGF2N<T>& other) -> PolynomialGF2N<T>& {
-        coefficients.resize(degree + other.degree);
+        std::vector<T> new_coefficients;
+        new_coefficients.resize(degree + other.degree);
         size_t deg = 0;
         for (size_t i = 0; i <= degree; ++i) {
             for (size_t j = 0; j <= other.degree; ++j) {
-                coefficients[i+j] += (coefficients[i] * other.coefficients[j]);
-                if (!coefficients[i+j].is_zero()) {
+                new_coefficients[i+j] += (coefficients[i] * other.coefficients[j]);
+                if (!coefficients[i+j].is_zero() && (i+j) > deg) {
                     deg = i+j;
                 }
             }
         }
         degree = deg;
+        coefficients = new_coefficients;
         return *this;
     }
 
