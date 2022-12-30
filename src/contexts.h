@@ -127,7 +127,7 @@ public:
                     // calculate the hamming weight of s - a*h_j
                     size_t w = 0;
                     for (size_t i = 0; i < syndrome.size(); ++i) {
-                        T tmp = syndrome[i] - (a * h_block[i]);
+                        T tmp = syndrome[i] + (a * h_block[i]);
                         w += (size_t)tmp.is_zero();
                     }
                     size_t sigma = syndrome_weight - w;
@@ -141,7 +141,7 @@ public:
             auto& h_block = (pos < block_size) ? h0: h1;
             syndrome_weight = 0;
             for (size_t i = 0; i < syndrome.size(); ++i) {
-                syndrome[i] -= (a_max*h_block[i]);
+                syndrome[i] += (a_max*h_block[i]);
                 syndrome_weight += (size_t)syndrome[i].is_zero();
             }
             error_vector[pos] = a_max;
@@ -168,10 +168,9 @@ private:
  * @return Instantiated classes EncodingContext and DecodingContext.
  */
 template<typename T>
-auto generate_contexts(size_t block_size, size_t block_weight) -> DistinctTuple<EncodingContext<T>, DecodingContext<T>> {
-    T minus_one = T{0} - T{1};
-    Polynomial<T> modulus{block_size};
-    modulus.set_coefficient(0, minus_one);
+auto generate_contexts_over_GF2N(size_t block_size, size_t block_weight) -> DistinctTuple<EncodingContext<T>, DecodingContext<T>> {
+    PolynomialGF2N<T> modulus{block_size};
+    modulus.set_coefficient(0, T{1});
     modulus.set_coefficient(block_size, T{1});
     std::vector<T> h0 = Random::random_weighted_vector_over_GF2N<T>(block_size, block_weight);
     while (true) {
@@ -179,18 +178,18 @@ auto generate_contexts(size_t block_size, size_t block_weight) -> DistinctTuple<
         if (sum(h1).is_zero()) {
             continue;
         }
-        Polynomial<T> h1_poly{h1};
+        PolynomialGF2N<T> h1_poly{h1};
         auto maybe_inverse = h1_poly.invert(modulus);
         if (maybe_inverse) {
-            Polynomial<T> inverse = maybe_inverse.value();
-            Polynomial<T> tmp = (h1_poly * inverse) % modulus;
+            PolynomialGF2N<T> inverse = maybe_inverse.value();
+            PolynomialGF2N<T> tmp = (h1_poly * inverse) % modulus;
             if (!tmp.is_one()) {
-                // WTF?! this likely means the "Polynomial::invert" is broken
+                // WTF?! this likely means the "PolynomialGF2N::invert" is broken
                 // therefore I consider it to be wise to abort
                 throw WTF{};
             }
-            Polynomial<T> h0_poly{h0};
-            Polynomial<T> second_block_G_poly = Polynomial<T>{0} - (h0_poly * inverse);
+            PolynomialGF2N<T> h0_poly{h0};
+            PolynomialGF2N<T> second_block_G_poly = PolynomialGF2N<T>{0} - (h0_poly * inverse);
             std::vector<T> second_block_G = second_block_G_poly.to_vector();
             EncodingContext<T> ec{second_block_G, block_size};
             DecodingContext<T> dc{h0, h1, block_size, block_weight};

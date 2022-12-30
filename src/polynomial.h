@@ -8,14 +8,14 @@
 #include "tuple.h"
 
 /**
- * @brief An implementation of polynomial.
+ * @brief An implementation of polynomial over a GF(2^N) field.
  *
- * This class provides polynomial operations for polynomials over finite fields.
+ * This class provides polynomial operations for polynomials over finite fields GF(2^N) for some natural number N.
  *
- * @tparam T Finite field to be used, it is expected to define all methods that GF4 defines.
+ * @tparam T Finite field to be used, it is expected to define all methods that GF4 defines and be of type GF(2^N).
  */
 template<typename T>
-class Polynomial {
+class PolynomialGF2N {
 public:
 
     /**
@@ -26,7 +26,7 @@ public:
      *
      * @param expected_degree The expected degree of created polynomial, i.e. the amount of pre-allocated space.
      */
-    explicit Polynomial(size_t expected_degree=0) {
+    explicit PolynomialGF2N(size_t expected_degree=0) {
         coefficients.resize(expected_degree + 1);
         degree = 0;
     }
@@ -36,15 +36,15 @@ public:
      *
      * @param other A polynomial to copy.
      */
-    Polynomial(const Polynomial<T>& other) = default;
-    auto operator=(const Polynomial<T>& other) -> Polynomial<T>& = default;
+    PolynomialGF2N(const PolynomialGF2N<T>& other) = default;
+    auto operator=(const PolynomialGF2N<T>& other) -> PolynomialGF2N<T>& = default;
 
     /**
      * @brief Construct a polynomial from a vector of coefficients and set its degree.
      *
      * @param coeffs
      */
-    explicit Polynomial(const std::vector<T>& coeffs) {
+    explicit PolynomialGF2N(const std::vector<T>& coeffs) {
         degree = 0;
         coefficients = coeffs;
         for (size_t i = 0; i < coeffs.size(); ++i) {
@@ -64,7 +64,7 @@ public:
      */
     [[nodiscard]] auto get_coefficient(size_t deg) const -> const T& {
         if (deg > degree) {
-            return Polynomial<T>::zero;
+            return PolynomialGF2N<T>::zero;
         } else {
             return coefficients[deg];
         }
@@ -169,16 +169,16 @@ public:
         return (coefficients.empty()) || (degree == 0 && coefficients[0].is_one());
     }
 
-    auto operator+(const Polynomial<T>& other) const -> Polynomial<T> {
+    auto operator+(const PolynomialGF2N<T>& other) const -> PolynomialGF2N<T> {
         if (degree > other.degree) { // DO NOT change to >=
-            Polynomial<T> out{degree};
+            PolynomialGF2N<T> out{degree};
             for (size_t i = 0; i <= degree; ++i) {
                 out.coefficients[i] = coefficients[i] + other.get_coefficient(i);
             }
             out.degree = degree;
             return out;
         } else {
-            Polynomial<T> out{other.degree};
+            PolynomialGF2N<T> out{other.degree};
             size_t deg = 0;
             for (size_t i = 0; i <= other.degree; ++i) {
                 out.coefficients[i] = get_coefficient(i) + other.coefficients[i];
@@ -191,7 +191,7 @@ public:
         }
     }
 
-    auto operator+=(const Polynomial<T>& other) -> Polynomial<T>& {
+    auto operator+=(const PolynomialGF2N<T>& other) -> PolynomialGF2N<T>& {
         if (degree > other.degree) { // DO NOT change to >=
             for (size_t i = 0; i <= other.degree; ++i) {
                 coefficients[i] += other.coefficients[i];
@@ -210,19 +210,19 @@ public:
         return *this;
     }
 
-    auto operator-(const Polynomial<T>& other) const -> Polynomial<T> {
+    auto operator-(const PolynomialGF2N<T>& other) const -> PolynomialGF2N<T> {
         if (degree > other.degree) { // DO NOT change to >=
-            Polynomial<T> out{degree};
+            PolynomialGF2N<T> out{degree};
             for (size_t i = 0; i <= degree; ++i) {
-                out.coefficients[i] = coefficients[i] - other.get_coefficient(i);
+                out.coefficients[i] = coefficients[i] + other.get_coefficient(i);
             }
             out.degree = degree;
             return out;
         } else {
-            Polynomial<T> out{other.degree};
+            PolynomialGF2N<T> out{other.degree};
             size_t deg = 0;
             for (size_t i = 0; i <= other.degree; ++i) {
-                out.coefficients[i] = get_coefficient(i) - other.coefficients[i];
+                out.coefficients[i] = get_coefficient(i) + other.coefficients[i];
                 if (!out.coefficients[i].is_zero()) {
                     deg = i;
                 }
@@ -232,16 +232,16 @@ public:
         }
     }
 
-    auto operator-=(const Polynomial<T>& other) -> Polynomial<T>& {
+    auto operator-=(const PolynomialGF2N<T>& other) -> PolynomialGF2N<T>& {
         if (degree > other.degree) { // DO NOT change to >=
             for (size_t i = 0; i <= other.degree; ++i) {
-                coefficients[i] -= other.coefficients[i];
+                coefficients[i] += other.coefficients[i];
             }
         } else {
             coefficients.resize(other.degree + 1);
             size_t deg = 0;
             for (size_t i = 0; i <= other.degree; ++i) {
-                coefficients[i] -= other.coefficients[i];
+                coefficients[i] += other.coefficients[i];
                 if (!coefficients[i].is_zero()) {
                     deg = i;
                 }
@@ -251,8 +251,8 @@ public:
         return *this;
     }
 
-    auto operator*(const Polynomial<T>& other) const -> Polynomial<T> {
-        Polynomial<T> out{degree + other.degree};
+    auto operator*(const PolynomialGF2N<T>& other) const -> PolynomialGF2N<T> {
+        PolynomialGF2N<T> out{degree + other.degree};
         size_t deg = 0;
         for (size_t i = 0; i <= degree; ++i) {
             for (size_t j = 0; j <= other.degree; ++j) {
@@ -266,7 +266,7 @@ public:
         return out;
     }
 
-    auto operator*=(const Polynomial<T>& other) -> Polynomial<T>& {
+    auto operator*=(const PolynomialGF2N<T>& other) -> PolynomialGF2N<T>& {
         coefficients.resize(degree + other.degree);
         size_t deg = 0;
         for (size_t i = 0; i <= degree; ++i) {
@@ -281,8 +281,8 @@ public:
         return *this;
     }
 
-    auto operator*(const T& scalar) const -> Polynomial<T> {
-        Polynomial<T> out{*this};
+    auto operator*(const T& scalar) const -> PolynomialGF2N<T> {
+        PolynomialGF2N<T> out{*this};
         size_t max_deg = 0;
         for (size_t deg = 0; deg <= out.degree; ++deg) {
             out.coefficients[deg] *= scalar;
@@ -294,7 +294,7 @@ public:
         return out;
     }
 
-    auto operator*=(const T& scalar) -> Polynomial<T>& {
+    auto operator*=(const T& scalar) -> PolynomialGF2N<T>& {
         size_t max_deg = 0;
         for (size_t deg = 0; deg <= degree; ++deg) {
             coefficients[deg] *= scalar;
@@ -312,50 +312,50 @@ public:
      * This is more efficient than calling / and % operators separately,
      * as these operators will internally call this function and discard the unwanted part of the result.
      *
-     * @param other Polynomial to divide by.
+     * @param other PolynomialGF2N to divide by.
      * @return A tuple containing the result of division and the remainder.
      */
-    auto div_rem(const Polynomial<T>& other) const -> Tuple<Polynomial<T>> {
+    auto div_rem(const PolynomialGF2N<T>& other) const -> Tuple<PolynomialGF2N<T>> {
         if (other.is_zero()) {
             throw DivisionByZero{};
         }
         if (degree < other.degree) {
-            Polynomial<T> q;
-            Polynomial<T> r{*this};
-            return Tuple<Polynomial<T>>{q, r};
+            PolynomialGF2N<T> q;
+            PolynomialGF2N<T> r{*this};
+            return Tuple<PolynomialGF2N<T>>{q, r};
         } else {
             size_t dif = degree - other.degree;
 
-            Polynomial<T> q{dif};
-            Polynomial<T> r{*this};
+            PolynomialGF2N<T> q{dif};
+            PolynomialGF2N<T> r{*this};
 
             T other_lead = other.coefficients[other.degree];
 
             while (!r.is_zero() && r.degree >= other.degree) {
-                Polynomial<T> t{degree};
+                PolynomialGF2N<T> t{degree};
                 t.coefficients[r.degree - other.degree] = r.coefficients[r.degree] / other_lead;
                 t.degree = r.degree - other.degree;
                 q += t;
                 r -= (t * other);
             }
-            return Tuple<Polynomial<T>>{q, r};
+            return Tuple<PolynomialGF2N<T>>{q, r};
         }
     }
 
-    auto operator/(const Polynomial<T>& other) const -> Polynomial<T> {
+    auto operator/(const PolynomialGF2N<T>& other) const -> PolynomialGF2N<T> {
         return div_rem(other).first;
     }
 
-    auto operator/=(const Polynomial<T>& other) -> Polynomial<T>& {
+    auto operator/=(const PolynomialGF2N<T>& other) -> PolynomialGF2N<T>& {
         *this = div_rem(other).first;
         return *this;
     }
 
-    auto operator%(const Polynomial<T>& other) const -> Polynomial<T> {
+    auto operator%(const PolynomialGF2N<T>& other) const -> PolynomialGF2N<T> {
         return div_rem(other).second;
     }
 
-    auto operator%=(const Polynomial<T>& other) -> Polynomial<T> {
+    auto operator%=(const PolynomialGF2N<T>& other) -> PolynomialGF2N<T> {
         *this = div_rem(other).second;
         return *this;
     }
@@ -368,19 +368,19 @@ public:
      * @param modulus A polynomial.
      * @return Multiplicative inverse of the polynomial if it exists, nothing otherwise.
      */
-    auto invert(const Polynomial<T>& modulus) const -> std::optional<Polynomial<T>> {
+    auto invert(const PolynomialGF2N<T>& modulus) const -> std::optional<PolynomialGF2N<T>> {
         if (is_zero()) {
             return {};
         } else {
-            Polynomial<T> a{modulus};
-            Polynomial<T> b{*this};
+            PolynomialGF2N<T> a{modulus};
+            PolynomialGF2N<T> b{*this};
             auto res = a.div_rem(b);
             if (res.second.is_zero()) {
                 return {};
             }
-            Polynomial<T> q = res.first;
-            Polynomial<T> s{modulus.degree};
-            Polynomial<T> t{modulus.degree};
+            PolynomialGF2N<T> q = res.first;
+            PolynomialGF2N<T> s{modulus.degree};
+            PolynomialGF2N<T> t{modulus.degree};
             t.coefficients[0] = T{1};
             while (true) {
                 a = b;
@@ -389,8 +389,8 @@ public:
                     return {};
                 }
                 res = a.div_rem(b);
-                Polynomial<T> news = t;
-                Polynomial<T> newt = s - q*t;
+                PolynomialGF2N<T> news = t;
+                PolynomialGF2N<T> newt = s - q * t;
                 q = res.first;
                 s = news;
                 t = newt;

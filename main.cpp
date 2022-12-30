@@ -2,7 +2,7 @@
 #include "src/contexts.h"
 
 int main() {
-    auto contexts = generate_contexts<GF4>(2339, 37); // currently hangs
+    auto contexts = generate_contexts_over_GF2N<GF4>(2339, 37); // currently hangs
     EncodingContext<GF4> ec = contexts.first;
     DecodingContext<GF4> dc = contexts.second;
     const std::vector<GF4> message = Random::random_vector_over_GF2N<GF4>(2339);
@@ -13,16 +13,16 @@ int main() {
     }
 
     /*
-    Polynomial<GF4> p1{2}; // invertible
+    PolynomialGF2N<GF4> p1{2}; // invertible
     p1.set_coefficient(0, 1);
     p1.set_coefficient(1, 1);
     p1.set_coefficient(2, 1);
 
-    Polynomial<GF4> p2{4}; // not invertible
+    PolynomialGF2N<GF4> p2{4}; // not invertible
     p2.set_coefficient(1, 2);
     p2.set_coefficient(4, 2);
 
-    Polynomial<GF4> modulus{8};
+    PolynomialGF2N<GF4> modulus{8};
     modulus.set_coefficient(0, 1);
     modulus.set_coefficient(8, 1);
 
@@ -30,7 +30,7 @@ int main() {
 
     if (inv) {
         // std::cout << "inverted!"<< std::endl;
-        Polynomial<GF4> tmp = (p1 * inv.value()) % modulus;
+        PolynomialGF2N<GF4> tmp = (p1 * inv.value()) % modulus;
         if (tmp.is_one()) {
             // std::cout << "inverse correct!" << std::endl;
             p1.set_coefficient(0, 0);

@@ -117,19 +117,7 @@ public:
         return GF4{val};
     }
 
-    auto operator-(const GF4& other) const -> GF4 {
-        // in GF4, addition is the same as subtraction
-        size_t val = value ^ other.value;
-        return GF4{val};
-    }
-
     auto operator+=(const GF4& other) -> GF4& {
-        value ^= other.value;
-        return *this;
-    }
-
-    auto operator-=(const GF4& other) -> GF4& {
-        // in GF4, addition is the same as subtraction
         value ^= other.value;
         return *this;
     }
