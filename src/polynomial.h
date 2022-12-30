@@ -4,8 +4,8 @@
 #include <vector>
 #include <string>
 #include <optional>
+#include <tuple>
 #include "custom_exceptions.h"
-#include "tuple.h"
 
 /**
  * @brief An implementation of polynomial over a GF(2^N) field.
@@ -317,14 +317,14 @@ public:
      * @param other PolynomialGF2N to divide by.
      * @return A tuple containing the result of division and the remainder.
      */
-    auto div_rem(const PolynomialGF2N<T>& other) const -> Tuple<PolynomialGF2N<T>> {
+    auto div_rem(const PolynomialGF2N<T>& other) const -> std::tuple<PolynomialGF2N<T>, PolynomialGF2N<T>> {
         if (other.is_zero()) {
             throw DivisionByZero{};
         }
         if (degree < other.degree) {
             PolynomialGF2N<T> q;
             PolynomialGF2N<T> r{*this};
-            return Tuple<PolynomialGF2N<T>>{q, r};
+            return std::make_tuple(q, r);
         } else {
             size_t dif = degree - other.degree;
 
@@ -340,25 +340,25 @@ public:
                 q += t;
                 r -= (t * other);
             }
-            return Tuple<PolynomialGF2N<T>>{q, r};
+            return std::make_tuple(q, r);
         }
     }
 
     auto operator/(const PolynomialGF2N<T>& other) const -> PolynomialGF2N<T> {
-        return div_rem(other).first;
+        return std::get<0>(div_rem(other));
     }
 
     auto operator/=(const PolynomialGF2N<T>& other) -> PolynomialGF2N<T>& {
-        *this = div_rem(other).first;
+        *this = std::get<0>(div_rem(other));
         return *this;
     }
 
     auto operator%(const PolynomialGF2N<T>& other) const -> PolynomialGF2N<T> {
-        return div_rem(other).second;
+        return std::get<1>(div_rem(other));
     }
 
     auto operator%=(const PolynomialGF2N<T>& other) -> PolynomialGF2N<T> {
-        *this = div_rem(other).second;
+        *this = std::get<1>(div_rem(other));
         return *this;
     }
 
@@ -376,24 +376,24 @@ public:
         } else {
             PolynomialGF2N<T> a{modulus};
             PolynomialGF2N<T> b{*this};
-            auto res = a.div_rem(b);
-            if (res.second.is_zero()) {
+            auto [div, rem] = a.div_rem(b);
+            if (rem.is_zero()) {
                 return {};
             }
-            PolynomialGF2N<T> q = res.first;
+            PolynomialGF2N<T> q = div;
             PolynomialGF2N<T> s{modulus.degree};
             PolynomialGF2N<T> t{modulus.degree};
             t.coefficients[0] = T{1};
             while (true) {
                 a = b;
-                b = res.second;
+                b = rem;
                 if (b.is_zero()) {
                     return {};
                 }
-                res = a.div_rem(b);
+                std::tie(div, rem) = a.div_rem(b);
                 PolynomialGF2N<T> news = t;
                 PolynomialGF2N<T> newt = s - q * t;
-                q = res.first;
+                q = div;
                 s = news;
                 t = newt;
                 if (b.degree == 0) {

@@ -2,9 +2,7 @@
 #include "src/contexts.h"
 
 int main() {
-    auto contexts = generate_contexts_over_GF2N<GF4>(2339, 37); // currently hangs
-    EncodingContext<GF4> ec = contexts.first;
-    DecodingContext<GF4> dc = contexts.second;
+    auto [ec, dc] = generate_contexts_over_GF2N<GF4>(2339, 37);
     const std::vector<GF4> message = Random::random_vector_over_GF2N<GF4>(2339);
     auto encoded = ec.encode(message);
     auto maybe_decoded = dc.decode(encoded, 100);

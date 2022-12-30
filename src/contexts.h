@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <optional>
+#include <tuple>
 #include "polynomial.h"
 #include "custom_exceptions.h"
 #include "vector_utils.h"
@@ -168,7 +169,7 @@ private:
  * @return Instantiated classes EncodingContext and DecodingContext.
  */
 template<typename T>
-auto generate_contexts_over_GF2N(size_t block_size, size_t block_weight) -> DistinctTuple<EncodingContext<T>, DecodingContext<T>> {
+auto generate_contexts_over_GF2N(size_t block_size, size_t block_weight) -> std::tuple<EncodingContext<T>, DecodingContext<T>> {
     PolynomialGF2N<T> modulus{block_size};
     modulus.set_coefficient(0, T{1});
     modulus.set_coefficient(block_size, T{1});
@@ -193,7 +194,7 @@ auto generate_contexts_over_GF2N(size_t block_size, size_t block_weight) -> Dist
             std::vector<T> second_block_G = second_block_G_poly.to_vector();
             EncodingContext<T> ec{second_block_G, block_size};
             DecodingContext<T> dc{h0, h1, block_size, block_weight};
-            return DistinctTuple(ec, dc);
+            return std::make_tuple(ec, dc);
         }
     }
 }
