@@ -34,11 +34,8 @@ Call `generate_contexts_over_GF2N` with `block_size` and `block_weight` as per [
 A full example of usage follows:
 
 ```cpp
-
-auto contexts = generate_contexts_over_GF2N<GF4>(2339, 37);
-EncodingContext<GF4> ec = contexts.first;
-DecodingContext<GF4> dc = contexts.second;
-const std::vector<GF4> message = GF4::random_vector(2339);
+auto [ec, dc] = generate_contexts_over_GF2N<GF4>(2339, 37);
+const std::vector<GF4> message = Random::random_vector_over_GF2N<GF4>(2339);
 auto encoded = ec.encode(message);
 auto maybe_decoded = dc.decode(encoded, 100);
 if (maybe_decoded) {
