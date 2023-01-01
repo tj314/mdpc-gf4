@@ -6,6 +6,7 @@
 #include <optional>
 #include <tuple>
 #include "custom_exceptions.h"
+#include "xgcd.h"
 
 
 /**
@@ -322,6 +323,22 @@ public:
         }
     }
 
+    /**
+     * Divide the polynomial by x^deg.
+     *
+     * This is sometimes useful and is much faster than Polynomial::div_rem().
+     * Division of the polynomial by x^k for some integer k >= 0 can by calculated by simply
+     * removing the first k entries from the coefficients vector, i.e. shifting the vector left by k positions.
+     *
+     * @param deg
+     * @return
+     */
+    auto div_x_to_deg(size_t deg) -> PolynomialGF2N<T> {
+        PolynomialGF2N<T> out{*this};
+        out.coefficients.erase(out.coefficients.begin(), out.coefficients.begin() + deg);
+        return out;
+    }
+
     auto operator/(const PolynomialGF2N<T>& other) const -> PolynomialGF2N<T> {
         return std::get<0>(div_rem(other));
     }
@@ -348,7 +365,7 @@ public:
      * @param modulus A polynomial.
      * @return Multiplicative inverse of the polynomial if it exists, nothing otherwise.
      */
-    auto invert(const PolynomialGF2N<T>& modulus) const -> std::optional<PolynomialGF2N<T>> {
+    auto invert_slow(const PolynomialGF2N<T>& modulus) const -> std::optional<PolynomialGF2N<T>> {
         if (is_zero()) {
             return {};
         } else if (modulus.is_zero()) {
@@ -371,8 +388,27 @@ public:
         }
     }
 
-    auto extend_coefficients(const PolynomialGF2N<T>& other) -> void {
-        coefficients.insert(coefficients.end(), other.coefficients.begin(), other.coefficients.end());
+    /**
+     * @brief Calculate the multiplicative inverse of the polynomial mod the provided modulus.
+     *
+     * This implements extended euclidean algorithm.
+     *
+     * @param modulus A polynomial.
+     * @return Multiplicative inverse of the polynomial if it exists, nothing otherwise.
+     */
+    auto invert(const PolynomialGF2N<T>& modulus) const -> std::optional<PolynomialGF2N<T>> {
+        if (modulus.is_zero()) {
+            throw DivisionByZero{};
+        }
+        PolynomialGF2N<T> a = modulus;
+        PolynomialGF2N<T> b = *this % modulus;
+        auto tr = std::get<1>(full_gcd(a, b));
+        auto g = tr.a11 * a - tr.a01 * b;
+        if(g.get_degree() != 0) {
+            return {};
+        } else {
+            return tr.a01 / g;
+        }
     }
 
     static auto make_zero() -> PolynomialGF2N<T> {
