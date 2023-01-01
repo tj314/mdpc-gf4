@@ -9,6 +9,12 @@ struct DivisionByZero : public std::exception {
     }
 };
 
+struct IncorrectPolynomialDegree : public std::exception {
+    auto what() -> const char * {
+        return "The provided polynomial 'a' is of lower degree than polynomial 'b'.";
+    }
+};
+
 struct IncorrectInputVectorLength : public std::exception {
     auto what() -> const char * {
         return "The provided input vector is of incorrect length!";
