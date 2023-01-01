@@ -1,7 +1,10 @@
 #include "src/gf4.h"
 #include "src/contexts.h"
 
+#include <iostream>
+
 int main() {
+    /*
     auto [ec, dc] = generate_contexts_over_GF2N<GF4>(2339, 37);
     const std::vector<GF4> message = Random::random_vector_over_GF2N<GF4>(2339);
     auto encoded = ec.encode(message);
@@ -9,8 +12,7 @@ int main() {
     if (maybe_decoded) {
         std::vector<GF4> decoded = maybe_decoded.value();
     }
-
-    /*
+    */
     PolynomialGF2N<GF4> p1{2}; // invertible
     p1.set_coefficient(0, 1);
     p1.set_coefficient(1, 1);
@@ -24,22 +26,22 @@ int main() {
     modulus.set_coefficient(0, 1);
     modulus.set_coefficient(8, 1);
 
-    auto inv = p1.invert(modulus);
+    auto inv = p2.invert(modulus);
 
     if (inv) {
-        // std::cout << "inverted!"<< std::endl;
-        PolynomialGF2N<GF4> tmp = (p1 * inv.value()) % modulus;
+        std::cout << "inverted!"<< std::endl;
+        PolynomialGF2N<GF4> tmp = (p2 * inv.value()) % modulus;
         if (tmp.is_one()) {
-            // std::cout << "inverse correct!" << std::endl;
+            std::cout << "inverse correct!" << std::endl;
             p1.set_coefficient(0, 0);
         } else {
-            // std::cout << "inverse incorrect!" << std::endl;
+            std::cout << "inverse incorrect!" << std::endl;
             p1.set_coefficient(0, 1);
         }
     } else {
-        // std::cout << "inverse not found!" << std::endl;
+        std::cout << "inverse not found!" << std::endl;
         p1.set_coefficient(0, 2);
     }
-    */
+
     return 0;
 }
