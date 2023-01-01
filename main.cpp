@@ -26,11 +26,12 @@ int main() {
     modulus.set_coefficient(0, 1);
     modulus.set_coefficient(8, 1);
 
-    auto inv = p2.invert(modulus);
+    auto& p = p1; // select polynomial to test
 
+    auto inv = p.invert(modulus);
     if (inv) {
         std::cout << "inverted!"<< std::endl;
-        PolynomialGF2N<GF4> tmp = (p2 * inv.value()) % modulus;
+        PolynomialGF2N<GF4> tmp = (p * inv.value()) % modulus;
         if (tmp.is_one()) {
             std::cout << "inverse correct!" << std::endl;
             p1.set_coefficient(0, 0);
