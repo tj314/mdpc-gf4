@@ -6,7 +6,6 @@
 #include <optional>
 #include <tuple>
 #include "custom_exceptions.h"
-#include "xgcd.h"
 
 
 /**
@@ -375,33 +374,23 @@ public:
     auto invert(const PolynomialGF2N<T>& modulus) const -> std::optional<PolynomialGF2N<T>> {
         if (is_zero()) {
             return {};
+        } else if (modulus.is_zero()) {
+            throw DivisionByZero{};
+        }
+
+        PolynomialGF2N<T> a{*this};
+        PolynomialGF2N<T> b{modulus};
+        PolynomialGF2N<T> t = PolynomialGF2N<T>::make_one();
+        PolynomialGF2N<T> s = PolynomialGF2N<T>::make_zero();
+        while(!b.is_zero()) {
+            auto [d, r] = a.div_rem(b);
+            std::tie(a, b) = std::make_tuple(b, r);
+            std::tie(t, s) = std::make_tuple(s, t + d * s);
+        }
+        if(a.get_degree() > 0) {
+            return {};
         } else {
-            PolynomialGF2N<T> a{modulus};
-            PolynomialGF2N<T> b{*this};
-            auto [div, rem] = a.div_rem(b);
-            if (rem.is_zero()) {
-                return {};
-            }
-            PolynomialGF2N<T> q = div;
-            PolynomialGF2N<T> s{modulus.degree};
-            PolynomialGF2N<T> t{modulus.degree};
-            t.coefficients[0] = T{1};
-            while (true) {
-                a = b;
-                b = rem;
-                if (b.is_zero()) {
-                    return {};
-                }
-                std::tie(div, rem) = a.div_rem(b);
-                PolynomialGF2N<T> news = t;
-                PolynomialGF2N<T> newt = s - q * t;
-                q = div;
-                s = news;
-                t = newt;
-                if (b.degree == 0) {
-                    return t / b;
-                }
-            }
+            return t / a;
         }
     }
 
