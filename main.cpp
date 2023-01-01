@@ -13,20 +13,20 @@ int main() {
         std::vector<GF4> decoded = maybe_decoded.value();
     }
     */
-    PolynomialGF2N<GF4> p1{2}; // invertible
+    PolynomialGF2N<GF4> p1; // invertible
     p1.set_coefficient(0, 1);
     p1.set_coefficient(1, 1);
     p1.set_coefficient(2, 1);
 
-    PolynomialGF2N<GF4> p2{4}; // not invertible
+    PolynomialGF2N<GF4> p2; // not invertible
     p2.set_coefficient(1, 2);
     p2.set_coefficient(4, 2);
 
-    PolynomialGF2N<GF4> modulus{8};
+    PolynomialGF2N<GF4> modulus;
     modulus.set_coefficient(0, 1);
     modulus.set_coefficient(8, 1);
 
-    auto& p = p1; // select polynomial to test
+    auto& p = p2; // select polynomial to test
 
     auto inv = p.invert(modulus);
     if (inv) {

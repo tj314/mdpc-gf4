@@ -20,17 +20,11 @@ class PolynomialGF2N {
 public:
 
     /**
-     * @brief Construct a polynomial with pre-allocated space.
-     *
-     * Constructs a polynomial with the coefficients vector of length expected degree+1.
-     * The degree of the constructed polynomial will be 0.
-     *
-     * @param expected_degree The expected degree of created polynomial, i.e. the amount of pre-allocated space.
+     * Construct an empty polynomial.
      */
-    explicit PolynomialGF2N(size_t expected_degree=0) {
-        coefficients.resize(expected_degree + 1);
-        degree = 0;
-    }
+    PolynomialGF2N() {
+        coefficients.push_back(T{0});
+    };
 
     /**
      * @brief A copy constructor.
@@ -46,11 +40,21 @@ public:
      * @param coeffs
      */
     explicit PolynomialGF2N(const std::vector<T>& coeffs) {
-        degree = 0;
-        coefficients = coeffs;
-        for (size_t i = 0; i < coeffs.size(); ++i) {
-            if (!coeffs[i].is_zero()) {
-                degree = i;
+        if (coeffs.empty()) {
+            coefficients.push_back(T{0});
+        } else {
+            size_t degree = 0;
+            for (size_t i = 0; i < coeffs.size(); ++i) {
+                if (!coeffs[i].is_zero()) {
+                    degree = i;
+                }
+            }
+            if (degree != 0) {
+                coefficients = coeffs;
+                coefficients.resize(degree + 1);
+            } else {
+                coefficients = {};
+                coefficients.push_back(T{0});
             }
         }
     }
@@ -64,7 +68,7 @@ public:
      * @return The coefficient corresponding to the requested power of x.
      */
     [[nodiscard]] auto get_coefficient(size_t deg) const -> const T& {
-        if (deg > degree) {
+        if (deg > get_degree()) {
             return PolynomialGF2N<T>::zero;
         } else {
             return coefficients[deg];
@@ -80,19 +84,23 @@ public:
      * @param value The value to set the coefficient to.
      */
     auto set_coefficient(size_t deg, T value) -> void {
-        if (deg > degree && !value.is_zero()) {
+        if (deg > get_degree() && !value.is_zero()) {
             coefficients.resize(deg + 1);
             coefficients[deg] = value;
-            degree = deg;
-        } else if (deg == degree && value.is_zero()) {
+        } else if (deg == get_degree() && value.is_zero()) {
             coefficients[deg] = value;
-            for (size_t i = degree; i > 0; --i) {
+            size_t degree = 0;
+            for (size_t i = get_degree(); i > 0; --i) {
                 if (!coefficients[i].is_zero()) {
                     degree = i;
-                    return;
+                    break;
                 }
             }
-            degree = 0;
+            if (degree == 0) {
+                coefficients = {};
+            } else {
+                coefficients.resize(degree + 1);
+            }
         } else {
             coefficients[deg] = value;
         }
@@ -117,7 +125,7 @@ public:
      * @return The degree of the polynomial.
      */
     [[nodiscard]] auto get_degree() const -> size_t {
-        return degree;
+        return coefficients.size() - 1;
     }
 
     /**
@@ -142,7 +150,7 @@ public:
         } else {
             std::string repr;
             std::string sep;
-            for (size_t deg = 0; deg <= degree; ++deg) {
+            for (size_t deg = 0; deg <= get_degree(); ++deg) {
                 if (!coefficients[deg].is_zero()) {
                     repr += (sep + coefficients[deg].to_string() + "*x^" + std::to_string(deg));
                     sep = " + ";
@@ -158,7 +166,7 @@ public:
      * @return true if one, false otherwise
      */
     [[nodiscard]] auto is_zero() const -> bool {
-        return (coefficients.empty()) || (degree == 0 && coefficients[0].is_zero());
+        return (coefficients.empty()) || (get_degree() == 0 && coefficients[0].is_zero());
     }
 
     /**
@@ -167,119 +175,89 @@ public:
      * @return true if one, false otherwise
      */
     [[nodiscard]] auto is_one() const -> bool {
-        return (coefficients.empty()) || (degree == 0 && coefficients[0].is_one());
+        return (coefficients.empty()) || (get_degree() == 0 && coefficients[0].is_one());
     }
 
     auto operator+(const PolynomialGF2N<T>& other) const -> PolynomialGF2N<T> {
-        if (degree > other.degree) { // DO NOT change to >=
-            PolynomialGF2N<T> out{degree};
-            for (size_t i = 0; i <= degree; ++i) {
+        if (get_degree() > other.get_degree()) { // DO NOT change to >=
+            PolynomialGF2N<T> out;
+            out.coefficients.resize(get_degree() + 1);
+            for (size_t i = 0; i <= get_degree(); ++i) {
                 out.coefficients[i] = coefficients[i] + other.get_coefficient(i);
             }
-            out.degree = degree;
             return out;
         } else {
-            PolynomialGF2N<T> out{other.degree};
-            size_t deg = 0;
-            for (size_t i = 0; i <= other.degree; ++i) {
+            PolynomialGF2N<T> out;
+            out.coefficients.resize(other.get_degree() + 1);
+            size_t degree = 0;
+            for (size_t i = 0; i <= other.get_degree(); ++i) {
                 out.coefficients[i] = get_coefficient(i) + other.coefficients[i];
                 if (!out.coefficients[i].is_zero()) {
-                    deg = i;
+                    degree = i;
                 }
             }
-            out.degree = deg;
+            out.coefficients.resize(degree + 1);
             return out;
         }
     }
 
     auto operator+=(const PolynomialGF2N<T>& other) -> PolynomialGF2N<T>& {
-        if (degree > other.degree) { // DO NOT change to >=
-            for (size_t i = 0; i <= other.degree; ++i) {
+        if (get_degree() > other.get_degree()) { // DO NOT change to >=
+            for (size_t i = 0; i <= other.get_degree(); ++i) {
                 coefficients[i] += other.coefficients[i];
             }
         } else {
-            coefficients.resize(other.degree + 1);
-            size_t deg = 0;
-            for (size_t i = 0; i <= other.degree; ++i) {
+            coefficients.resize(other.get_degree() + 1);
+            size_t degree = 0;
+            for (size_t i = 0; i <= other.get_degree(); ++i) {
                 coefficients[i] += other.coefficients[i];
                 if (!coefficients[i].is_zero()) {
-                    deg = i;
+                    degree = i;
                 }
             }
-            degree = deg;
+            coefficients.resize(degree + 1);
         }
         return *this;
     }
 
     auto operator-(const PolynomialGF2N<T>& other) const -> PolynomialGF2N<T> {
-        if (degree > other.degree) { // DO NOT change to >=
-            PolynomialGF2N<T> out{degree};
-            for (size_t i = 0; i <= degree; ++i) {
-                out.coefficients[i] = coefficients[i] + other.get_coefficient(i);
-            }
-            out.degree = degree;
-            return out;
-        } else {
-            PolynomialGF2N<T> out{other.degree};
-            size_t deg = 0;
-            for (size_t i = 0; i <= other.degree; ++i) {
-                out.coefficients[i] = get_coefficient(i) + other.coefficients[i];
-                if (!out.coefficients[i].is_zero()) {
-                    deg = i;
-                }
-            }
-            out.degree = deg;
-            return out;
-        }
+        return *this + other;
     }
 
     auto operator-=(const PolynomialGF2N<T>& other) -> PolynomialGF2N<T>& {
-        if (degree > other.degree) { // DO NOT change to >=
-            for (size_t i = 0; i <= other.degree; ++i) {
-                coefficients[i] += other.coefficients[i];
-            }
-        } else {
-            coefficients.resize(other.degree + 1);
-            size_t deg = 0;
-            for (size_t i = 0; i <= other.degree; ++i) {
-                coefficients[i] += other.coefficients[i];
-                if (!coefficients[i].is_zero()) {
-                    deg = i;
-                }
-            }
-            degree = deg;
-        }
+        *this += other;
         return *this;
     }
 
     auto operator*(const PolynomialGF2N<T>& other) const -> PolynomialGF2N<T> {
-        PolynomialGF2N<T> out{degree + other.degree};
-        size_t deg = 0;
-        for (size_t i = 0; i <= degree; ++i) {
-            for (size_t j = 0; j <= other.degree; ++j) {
+        PolynomialGF2N<T> out;
+        out.coefficients.resize(get_degree() + other.get_degree() + 1);
+        size_t degree = 0;
+        for (size_t i = 0; i <= get_degree(); ++i) {
+            for (size_t j = 0; j <= other.get_degree(); ++j) {
                 out.coefficients[i+j] += (coefficients[i] * other.coefficients[j]);
-                if (!out.coefficients[i+j].is_zero()) {
-                    deg = i+j;
+                if (!out.coefficients[i+j].is_zero() && (i+j) > degree) {
+                    degree = i + j;
                 }
             }
         }
-        out.degree = deg;
+        out.coefficients.resize(degree + 1);
         return out;
     }
 
     auto operator*=(const PolynomialGF2N<T>& other) -> PolynomialGF2N<T>& {
         std::vector<T> new_coefficients;
-        new_coefficients.resize(degree + other.degree);
-        size_t deg = 0;
-        for (size_t i = 0; i <= degree; ++i) {
+        new_coefficients.resize(get_degree() + other.get_degree() + 1);
+        size_t degree = 0;
+        for (size_t i = 0; i <= get_degree(); ++i) {
             for (size_t j = 0; j <= other.degree; ++j) {
                 new_coefficients[i+j] += (coefficients[i] * other.coefficients[j]);
-                if (!coefficients[i+j].is_zero() && (i+j) > deg) {
-                    deg = i+j;
+                if (!coefficients[i+j].is_zero() && (i+j) > degree) {
+                    degree = i + j;
                 }
             }
         }
-        degree = deg;
+        new_coefficients.resize(degree + 1);
         coefficients = new_coefficients;
         return *this;
     }
@@ -293,19 +271,19 @@ public:
                 max_deg = deg;
             }
         }
-        out.degree = max_deg;
+        out.coefficients.resize(max_deg + 1);
         return out;
     }
 
     auto operator*=(const T& scalar) -> PolynomialGF2N<T>& {
         size_t max_deg = 0;
-        for (size_t deg = 0; deg <= degree; ++deg) {
+        for (size_t deg = 0; deg <= get_degree(); ++deg) {
             coefficients[deg] *= scalar;
             if (!coefficients[deg].is_zero()) {
                 max_deg = deg;
             }
         }
-        degree = max_deg;
+        coefficients.resize(max_deg + 1);
         return *this;
     }
 
@@ -322,22 +300,21 @@ public:
         if (other.is_zero()) {
             throw DivisionByZero{};
         }
-        if (degree < other.degree) {
+        if (get_degree() < other.get_degree()) {
             PolynomialGF2N<T> q;
             PolynomialGF2N<T> r{*this};
             return std::make_tuple(q, r);
         } else {
-            size_t dif = degree - other.degree;
-
-            PolynomialGF2N<T> q{dif};
+            PolynomialGF2N<T> q;
             PolynomialGF2N<T> r{*this};
 
-            T other_lead = other.coefficients[other.degree];
+            T other_lead = other.coefficients[other.get_degree()];
 
-            while (!r.is_zero() && r.degree >= other.degree) {
-                PolynomialGF2N<T> t{degree};
-                t.coefficients[r.degree - other.degree] = r.coefficients[r.degree] / other_lead;
-                t.degree = r.degree - other.degree;
+            while (!r.is_zero() && r.get_degree() >= other.get_degree()) {
+                PolynomialGF2N<T> t;
+                size_t t_degree = r.get_degree() - other.get_degree();
+                t.coefficients.resize(t_degree + 1);
+                t.coefficients[t_degree] = r.coefficients[r.get_degree()] / other_lead;
                 q += t;
                 r -= (t * other);
             }
@@ -394,19 +371,23 @@ public:
         }
     }
 
+    auto extend_coefficients(const PolynomialGF2N<T>& other) -> void {
+        coefficients.insert(coefficients.end(), other.coefficients.begin(), other.coefficients.end());
+    }
+
     static auto make_zero() -> PolynomialGF2N<T> {
-        return PolynomialGF2N<T>{0};
+        return PolynomialGF2N<T>{};
     }
 
     static auto make_one() -> PolynomialGF2N<T> {
-        PolynomialGF2N<T> out{0};
+        PolynomialGF2N<T> out;
+        out.coefficients.resize(1);
         out.coefficients[0] = T{1};
         return out;
     }
 
 private:
     std::vector<T> coefficients;
-    size_t degree;
     inline static const T zero{0};
 };
 
