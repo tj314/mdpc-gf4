@@ -6,6 +6,8 @@
 #include <optional>
 #include <tuple>
 #include "custom_exceptions.h"
+#include "xgcd.h"
+
 
 /**
  * @brief An implementation of polynomial over a GF(2^N) field.
@@ -403,9 +405,20 @@ public:
         }
     }
 
+    static auto make_zero() -> PolynomialGF2N<T> {
+        return PolynomialGF2N<T>{0};
+    }
+
+    static auto make_one() -> PolynomialGF2N<T> {
+        PolynomialGF2N<T> out{0};
+        out.coefficients[0] = T{1};
+        return out;
+    }
+
 private:
     std::vector<T> coefficients;
     size_t degree;
     inline static const T zero{0};
 };
+
 #endif //MDPC_GF4_POLYNOMIAL_H
