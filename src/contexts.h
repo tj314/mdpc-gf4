@@ -170,7 +170,7 @@ private:
  */
 template<typename T>
 auto generate_contexts_over_GF2N(size_t block_size, size_t block_weight) -> std::tuple<EncodingContext<T>, DecodingContext<T>> {
-    PolynomialGF2N<T> modulus{block_size};
+    PolynomialGF2N<T> modulus;
     modulus.set_coefficient(0, T{1});
     modulus.set_coefficient(block_size, T{1});
     std::vector<T> h0 = Random::random_weighted_vector_over_GF2N<T>(block_size, block_weight);
@@ -190,7 +190,7 @@ auto generate_contexts_over_GF2N(size_t block_size, size_t block_weight) -> std:
                 throw WTF{};
             }
             PolynomialGF2N<T> h0_poly{h0};
-            PolynomialGF2N<T> second_block_G_poly = PolynomialGF2N<T>{0} - (h0_poly * inverse);
+            PolynomialGF2N<T> second_block_G_poly = h0_poly * inverse;
             std::vector<T> second_block_G = second_block_G_poly.to_vector();
             EncodingContext<T> ec{second_block_G, block_size};
             DecodingContext<T> dc{h0, h1, block_size, block_weight};
