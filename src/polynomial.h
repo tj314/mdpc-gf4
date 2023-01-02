@@ -334,9 +334,16 @@ public:
      * @return
      */
     auto div_x_to_deg(size_t deg) -> PolynomialGF2N<T> {
-        PolynomialGF2N<T> out{*this};
-        out.coefficients.erase(out.coefficients.begin(), out.coefficients.begin() + deg);
-        return out;
+        if (deg < get_degree()) {
+            PolynomialGF2N<T> out{*this};
+            out.coefficients.erase(out.coefficients.begin(), out.coefficients.begin() + deg);
+            return out;
+        } else if (deg == get_degree()) {
+            return PolynomialGF2N<T>{};
+        } else {
+            return *this;
+        }
+
     }
 
     auto operator/(const PolynomialGF2N<T>& other) const -> PolynomialGF2N<T> {
